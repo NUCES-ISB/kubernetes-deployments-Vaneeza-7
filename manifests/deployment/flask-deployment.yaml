@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask
+  template:
+    metadata:
+      labels:
+        app: flask
+    spec:
+      containers:
+      - name: flask-container
+        image: flask-app:latest
+        ports:
+        - containerPort: 5000
+        env:
+          # Environment variable for PostgreSQL host.
+          - name: DATABASE_HOST
+            value: "postgres-service"
+          - name: DATABASE_PORT
+            value: "5432"
+          # Pulling additional values from a ConfigMap or Secret
+          - name: DATABASE_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-configmap
+                key: database
+          - name: DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: user
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: password
